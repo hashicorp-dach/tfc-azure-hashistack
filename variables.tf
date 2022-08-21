@@ -2,7 +2,7 @@
 
 variable "azure_region" {
   description = "Azure region"
-  default     = "eu-west-1"
+  default     = "Germany West Central"
 }
 
 variable "dns_domain" {
@@ -13,6 +13,11 @@ variable "dns_domain" {
 variable "instance_type" {
   description = "type of Azure VM instance to provision (Server and Client Nodes)."
   default     = "t2.small"
+}
+
+variable "ubuntu_server_sku" {
+  description = "Version of UbuntuServer used for the Server and Client VMs"
+  default = "18.04-LTS"
 }
 
 variable "name" {

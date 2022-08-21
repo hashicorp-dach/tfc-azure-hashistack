@@ -2,10 +2,10 @@
 echo "--> Adding helper for IP retrieval"
 sudo tee /etc/profile.d/ips.sh > /dev/null <<EOF
 function private_ip {
-  curl -s http://169.254.169.254/latest/meta-data/local-ipv4
+   curl -s -H Metadata:true 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2021-12-13&format=text'
 }
 function public_ip {
-  curl -s http://169.254.169.254/latest/meta-data/public-ipv4
+  curl -s -H Metadata:true 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-12-13&format=text'
 }
 EOF
 

@@ -20,10 +20,3 @@ resource "azurerm_subnet" "hashistack_subnet" {
   virtual_network_name = azurerm_virtual_network.hashistack_network.name
   address_prefixes     = ["10.0.2.0/24"]
 }
-
-data "azurerm_platform_image" "vm_image" {
-  location  = "West Europe"
-  publisher = "Canonical"
-  offer     = "UbuntuServer"
-  sku       = "20.04-LTS"
-}

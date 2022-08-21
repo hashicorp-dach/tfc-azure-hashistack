@@ -2,43 +2,14 @@ locals {
   nomad_apt   = length(split("+", var.nomad_version)) == 2 ? "nomad-enterprise" : "nomad"
   consul_apt  = length(split("+", var.consul_version)) == 2 ? "consul-enterprise" : "consul"
   vault_apt   = length(split("+", var.vault_version)) == 2 ? "vault-enterprise" : "vault"
-  #kms_key_id  = var.vault_enabled ? aws_kms_key.vault.0.key_id : "NULL"
-  #cert        = var.vault_tls_enabled ? tls_locally_signed_cert.vault.0.cert_pem : "NULL"
-  #key         = var.vault_tls_enabled ? tls_private_key.vault.0.private_key_pem : "NULL"
-  #ca_cert     = var.vault_tls_enabled ? tls_private_key.ca.0.public_key_pem : "NULL"
+  kms_key_id  = var.vault_enabled ? azurerm_key_vault_key.hashistack_kms_key.0.id : "NULL"
+  cert        = var.vault_tls_enabled ? tls_locally_signed_cert.vault.0.cert_pem : "NULL"
+  key         = var.vault_tls_enabled ? tls_private_key.vault.0.private_key_pem : "NULL"
+  ca_cert     = var.vault_tls_enabled ? tls_private_key.ca.0.public_key_pem : "NULL"
   protocol    = var.vault_tls_enabled ? "https" : "http"
   tls_disable = var.vault_tls_enabled ? "false" : "true"
   
-  fqdn_tls    = [for i in range(var.server_count) : format("%s-%02d.%s", var.server_name, i +1, var.dns_domain)]
-  user_data_vars = {
-        server_count        = var.server_count
-        data_dir            = var.data_dir
-        datacenter          = var.datacenter
-        region              = var.region
-        nomad_join          = var.tag_value
-        node_name           = format("${var.server_name}-%02d",1)
-        nomad_enabled       = var.nomad_enabled
-        nomad_version       = var.nomad_version
-        nomad_apt           = local.nomad_apt
-        nomad_lic           = var.nomad_lic
-        nomad_bootstrap     = var.nomad_bootstrap
-        consul_enabled      = var.consul_enabled
-        consul_version      = var.consul_version
-        consul_apt          = local.consul_apt
-        consul_lic          = var.consul_lic
-        vault_enabled       = var.vault_enabled
-        vault_version       = var.vault_version
-        vault_apt           = local.vault_apt
-        vault_lic           = var.vault_lic
-        kms_key_id          = local.kms_key_id
-        azure_region          = var.azure_region
-        protocol            = local.protocol
-        tls_disable         = local.tls_disable
-        cert                = local.cert 
-        key                 = local.key
-        ca_cert             = local.ca_cert
-        dns_domain          = var.dns_domain
-    }  
+  fqdn_tls    = [for i in range(var.server_count) : format("%s-%02d.%s", var.server_name, i +1, var.dns_domain)] 
 }
 
 
@@ -75,7 +46,6 @@ resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
   location            = azurerm_resource_group.hashistack_resource_group.location
   size                = "Standard_B1s"
   admin_username      = "hashistack"
-  source_image_id = data.azurerm_platform_image.vm_image.id
   network_interface_ids = [
     azurerm_network_interface.hashistack_net_interface.*.id[count.index],
   ]
@@ -89,6 +59,43 @@ resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = var.ubuntu_server_sku
+    version = "latest"
+  }
   
-  user_data = templatefile("${path.root}/templates/server.sh", local.user_data_vars)
+  user_data = base64encode(templatefile("${path.root}/templates/server.sh", 
+  {
+        server_count        = var.server_count
+        data_dir            = var.data_dir
+        datacenter          = var.datacenter
+        region              = var.region
+        node_name           = format("${var.server_name}-%02d",count.index+1)
+        nomad_join          = var.tag_value
+        nomad_enabled       = var.nomad_enabled
+        nomad_version       = var.nomad_version
+        nomad_apt           = local.nomad_apt
+        nomad_lic           = var.nomad_lic
+        nomad_bootstrap     = var.nomad_bootstrap
+        consul_enabled      = var.consul_enabled
+        consul_version      = var.consul_version
+        consul_apt          = local.consul_apt
+        consul_lic          = var.consul_lic
+        vault_enabled       = var.vault_enabled
+        vault_version       = var.vault_version
+        vault_apt           = local.vault_apt
+        vault_lic           = var.vault_lic
+        kms_key_id          = local.kms_key_id
+        azure_region        = var.azure_region
+        protocol            = local.protocol
+        tls_disable         = local.tls_disable
+        cert                = local.cert 
+        key                 = local.key
+        ca_cert             = local.ca_cert
+        dns_domain          = var.dns_domain
+    } 
+  ))
 }
