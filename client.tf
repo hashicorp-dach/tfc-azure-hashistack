@@ -20,7 +20,7 @@ resource "azurerm_network_interface" "hashistack_client_net_interface" {
     name                          = "internal__${count.index}"
     subnet_id                     = azurerm_subnet.hashistack_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.hashistack_public_ip.*.id[count.index]
+    public_ip_address_id = azurerm_public_ip.hashistack_client_public_ip.*.id[count.index]
   }
 }
 
@@ -32,7 +32,7 @@ resource "azurerm_linux_virtual_machine" "hashistack_client_vm" {
   size                = "Standard_B1s"
   admin_username      = "hashistack"
   network_interface_ids = [
-    azurerm_network_interface.hashistack_net_interface.*.id[count.index],
+    azurerm_network_interface.hashistack_client_net_interface.*.id[count.index],
   ]
 
   admin_ssh_key {
@@ -52,7 +52,7 @@ resource "azurerm_linux_virtual_machine" "hashistack_client_vm" {
     version = "latest"
   }
   
-  user_data = base64encode(templatefile("${path.root}/templates/server.sh", 
+  user_data = base64encode(templatefile("${path.root}/templates/client.sh", 
     {
         client_count        = var.client_count
         data_dir            = var.data_dir
