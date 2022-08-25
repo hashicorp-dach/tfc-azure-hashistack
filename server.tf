@@ -13,7 +13,7 @@ locals {
 }
 
 resource "azurerm_public_ip" "hashistack_server_public_ip" {
-  count = 2
+  count = var.server_count
   name                = "hashistack_public_ip_${count.index}"
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
   location            = azurerm_resource_group.hashistack_resource_group.location
@@ -25,13 +25,13 @@ resource "azurerm_public_ip" "hashistack_server_public_ip" {
 }
 
 resource "azurerm_network_interface" "hashistack_server_net_interface" {
-  count = 2
-  name                = "example_nic_${count.index}"
+  count = var.server_count
+  name                = "hashistack_server_nic_${count.index}"
   location            = azurerm_resource_group.hashistack_resource_group.location
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
 
   ip_configuration {
-    name                          = "internal__${count.index}"
+    name                          = "hashistack_server_${count.index}"
     subnet_id                     = azurerm_subnet.hashistack_subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id = azurerm_public_ip.hashistack_server_public_ip.*.id[count.index]
@@ -39,16 +39,20 @@ resource "azurerm_network_interface" "hashistack_server_net_interface" {
 }
 
 resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
-  count = 2
+  count = var.server_count
   name                = "example-machine-${count.index}"
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
   location            = azurerm_resource_group.hashistack_resource_group.location
-  size                = "Standard_B1s"
+  size                = var.instance_type
   admin_username      = "hashistack"
   network_interface_ids = [
     azurerm_network_interface.hashistack_server_net_interface.*.id[count.index],
   ]
 
+  identity {
+    type = "UserAssigned"
+    identity_ids = azurerm_user_assigned_identity.vault.*.id
+  }
   admin_ssh_key {
     username   = "hashistack" #upload an sshkey to the azure sub
     public_key = data.azurerm_ssh_public_key.hashistack_public_key.public_key
@@ -68,35 +72,37 @@ resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
   
   user_data = base64encode(templatefile("${path.root}/templates/server.sh", 
     {
-        server_count        = var.server_count
-        data_dir            = var.data_dir
-        datacenter          = var.datacenter
-        region              = var.region
-        node_name           = format("${var.server_name}-%02d",count.index+1)
-        nomad_join          = var.tag_value
-        nomad_enabled       = var.nomad_enabled
-        nomad_version       = var.nomad_version
-        nomad_apt           = local.nomad_apt
-        nomad_lic           = var.nomad_lic
-        nomad_bootstrap     = var.nomad_bootstrap
-        consul_enabled      = var.consul_enabled
-        consul_version      = var.consul_version
-        consul_apt          = local.consul_apt
-        consul_lic          = var.consul_lic
-        vault_enabled       = var.vault_enabled
-        vault_version       = var.vault_version
-        vault_apt           = local.vault_apt
-        vault_lic           = var.vault_lic
-        azure_key_name      = local.kms_key_name
-        azure_key_vault_name= azurerm_key_vault.hashistack_key_vault.name
-        azure_tenant_id     =data.azurerm_client_config.current.tenant_id
-        azure_region        = var.azure_region
-        protocol            = local.protocol
-        tls_disable         = local.tls_disable
-        cert                = local.cert 
-        key                 = local.key
-        ca_cert             = local.ca_cert
-        dns_domain          = var.dns_domain
+        server_count            = var.server_count
+        data_dir                = var.data_dir
+        datacenter              = var.datacenter
+        region                  = var.region
+        node_name               = format("${var.server_name}-%02d",count.index+1)
+        nomad_join              = var.tag_value
+        nomad_enabled           = var.nomad_enabled
+        nomad_version           = var.nomad_version
+        nomad_apt               = local.nomad_apt
+        nomad_lic               = var.nomad_lic
+        nomad_bootstrap         = var.nomad_bootstrap
+        consul_enabled          = var.consul_enabled
+        consul_version          = var.consul_version
+        consul_apt              = local.consul_apt
+        consul_lic              = var.consul_lic
+        vault_enabled           = var.vault_enabled
+        vault_version           = var.vault_version
+        vault_apt               = local.vault_apt
+        vault_lic               = var.vault_lic
+        azure_key_name          = local.kms_key_name
+        azure_key_vault_name    = azurerm_key_vault.hashistack_key_vault.name
+        azure_tenant_id         = azurerm_user_assigned_identity.vault.tenant_id
+        azure_subscription_id   = data.azurerm_client_config.current.subscription_id
+        azure_client_id         = azurerm_user_assigned_identity.vault.client_id
+        azure_region            = var.azure_region
+        protocol                = local.protocol
+        tls_disable             = local.tls_disable
+        cert                    = local.cert 
+        key                     = local.key
+        ca_cert                 = local.ca_cert
+        dns_domain              = var.dns_domain
     } 
   ))
 }

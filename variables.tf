@@ -12,7 +12,7 @@ variable "dns_domain" {
 
 variable "instance_type" {
   description = "type of Azure VM instance to provision (Server and Client Nodes)."
-  default     = "t2.small"
+  default     = "Standard_B1s"
 }
 
 variable "ubuntu_server_sku" {

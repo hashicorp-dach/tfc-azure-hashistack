@@ -251,12 +251,14 @@ storage "raft" {
     path = "/opt/vault/data"
     node_id = "${node_name}"
     retry_join {
+        auto_join = "provider azure subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id} client_id=${azure_client_id}"
         leader_tls_servername = "${node_name}.${dns_domain}"
         auto_join = "provider=azure tag_key=nomad_join tag_value=${nomad_join}"
     }
 }
 
 seal "azurekeyvault" {
+  client_id = "${azure_client_id}"
   tenant_id  = "${azure_tenant_id}"
   vault_name = "${azure_key_vault_name}"
   key_name   = "${azure_key_name}"
