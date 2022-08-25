@@ -252,13 +252,14 @@ storage "raft" {
     node_id = "${node_name}"
     retry_join {
         leader_tls_servername = "${node_name}.${dns_domain}"
-        auto_join = "provider=aws tag_key=nomad_join tag_value=${nomad_join}"
+        auto_join = "provider=azure tag_key=nomad_join tag_value=${nomad_join}"
     }
 }
 
-seal "awskms" {
-  region     = "${azure_region}"
-  kms_key_id = "${kms_key_id}"
+seal "azurekeyvault" {
+  tenant_id  = "${azure_tenant_id}"
+  vault_name = "${azure_key_vault_name}"
+  key_name   = "${azure_key_name}"
 }
 
 ui = true

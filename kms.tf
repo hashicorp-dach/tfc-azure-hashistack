@@ -22,8 +22,8 @@ resource "azurerm_key_vault" "hashistack_key_vault" {
 }
 
 resource "azurerm_key_vault_key" "hashistack_kms_key" {
-  count = 2  
-  name         = "vault-autounseal-key-${count.index}"
+  count = var.vault_enabled ? 1 : 0
+  name         = "vault-autounseal-key"
   key_vault_id = azurerm_key_vault.hashistack_key_vault.id
   key_type     = "RSA"
   key_size     = 2048
