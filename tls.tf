@@ -72,20 +72,23 @@ resource "tls_locally_signed_cert" "vault" {
   ]
 }
 
-##
-## TODO: ADD COUNT
+resource "azurerm_private_dns_zone" "hashistack_dns_zone" {
+  name                = var.dns_domain
+  resource_group_name = azurerm_resource_group.hashistack_resource_group.name
+}
 
-# data "aws_route53_zone" "selected" {
-#   name         = "${var.dns_domain}."
-#   private_zone = false
-# }
+resource "azurerm_private_dns_a_record" "hashistack_dns_record" {
+  count = var.server_count
+  name                = format("${var.server_name}-%02d", count.index + 1)
+  zone_name           = azurerm_private_dns_zone.hashistack_dns_zone.name
+  resource_group_name = azurerm_resource_group.hashistack_resource_group.name
+  ttl                 = 3600
+  records             =  formatlist(azurerm_linux_virtual_machine.hashistack_server_vm[count.index].private_ip_address)
+}
 
-
-# resource "aws_route53_record" "server" {
-#   count   = var.server_count
-#   zone_id = data.aws_route53_zone.selected.zone_id
-#   name    = lookup(aws_instance.server.*.tags[count.index], "Name")
-#   type    = "A"
-#   ttl     = "300"
-#   records = [element(aws_instance.server.*.public_ip, count.index )]
-# }
+resource "azurerm_private_dns_zone_virtual_network_link" "hashistack_dns_link" {
+  name                  = "hashistack-dns-link"
+  resource_group_name   = azurerm_resource_group.hashistack_resource_group.name
+  private_dns_zone_name = azurerm_private_dns_zone.hashistack_dns_zone.name
+  virtual_network_id    = azurerm_virtual_network.hashistack_network.id
+}

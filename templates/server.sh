@@ -251,9 +251,8 @@ storage "raft" {
     path = "/opt/vault/data"
     node_id = "${node_name}"
     retry_join {
-        auto_join = "provider azure subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id} client_id=${azure_client_id}"
+        auto_join = "provider=azure tag_name=auto_join tag_value=${nomad_join} subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id}"
         leader_tls_servername = "${node_name}.${dns_domain}"
-        auto_join = "provider=azure tag_key=nomad_join tag_value=${nomad_join}"
     }
 }
 

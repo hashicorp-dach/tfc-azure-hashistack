@@ -16,7 +16,7 @@ resource "azurerm_key_vault" "hashistack_key_vault" {
     object_id = data.azurerm_client_config.current.object_id
 
     key_permissions = [
-      "Get","List","Create","Delete","Update"
+      "Get","List","Create","Delete","Update","Purge"
     ]
   }
 }

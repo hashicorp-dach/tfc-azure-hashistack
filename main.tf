@@ -4,7 +4,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "hashistack_resource_group" {
   name     = "dach-se-hashistack"
-  location = "West Europe"
+  location = var.azure_region
 }
 
 resource "azurerm_virtual_network" "hashistack_network" {
@@ -24,7 +24,7 @@ resource "azurerm_subnet" "hashistack_subnet" {
 resource "azurerm_ssh_public_key" "hashistack_ssh_key" {
   name                = "hashistack-ssh-key"
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
-  location            = "West Europe"
+  location            = var.azure_region
   public_key          = file("~/Documents/SSH-Keys/Antoine-SSH-Key.pub")
 }
 

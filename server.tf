@@ -36,11 +36,15 @@ resource "azurerm_network_interface" "hashistack_server_net_interface" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id = azurerm_public_ip.hashistack_server_public_ip.*.id[count.index]
   }
+
+  tags = {
+    auto_join = var.tag_value
+  }
 }
 
 resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
   count = var.server_count
-  name                = "example-machine-${count.index}"
+  name                = format("${var.server_name}-%02d", count.index + 1)
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
   location            = azurerm_resource_group.hashistack_resource_group.location
   size                = var.instance_type
@@ -68,6 +72,11 @@ resource "azurerm_linux_virtual_machine" "hashistack_server_vm" {
     offer     = "UbuntuServer"
     sku       = var.ubuntu_server_sku
     version = "latest"
+  }
+
+  tags = {
+    name = format("${var.server_name}-%02d", count.index + 1)
+    auto_join = var.tag_value
   }
   
   user_data = base64encode(templatefile("${path.root}/templates/server.sh", 
