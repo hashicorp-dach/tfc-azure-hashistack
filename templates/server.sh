@@ -67,7 +67,7 @@ server {
   bootstrap_expect = ${server_count}
   license_path     = "${data_dir}/nomad/license.hclic"
   server_join {
-    retry_join = ["provider=aws tag_key=nomad_join tag_value=${nomad_join}"]
+    retry_join = ["provider=azure tag_name=auto_join tag_value=${nomad_join} subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id}"]
   }
 }
 
@@ -167,9 +167,9 @@ license_path     = "${data_dir}/consul/license.hclic"
 bootstrap_expect = ${server_count}
 advertise_addr   = "$(private_ip)" 
 client_addr      = "0.0.0.0"
-ui               = true
+ui_config        = {enabled = true}
 datacenter       = "${datacenter}"
-retry_join       = ["provider=aws tag_key=nomad_join tag_value=${nomad_join}"]
+retry_join       = ["provider=azure tag_name=auto_join tag_value=${nomad_join} subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id}"]
 retry_max        = 10
 retry_interval   = "15s"
 

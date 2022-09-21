@@ -6,12 +6,12 @@ variable "azure_region" {
 }
 
 variable "dns_domain" {
-  description = "The Route53 Zone to assign DNS records to"
+  description = "The Private DNS Zone to assign DNS records to"
   default     = "joestack.xyz"
 }
 
 variable "instance_type" {
-  description = "type of Azure VM instance to provision (Server and Client Nodes)."
+  description = "Type of Azure VM instance to provision (Server and Client Nodes)."
   default     = "Standard_B1s"
 }
 

@@ -14,7 +14,7 @@ locals {
 
 resource "azurerm_public_ip" "hashistack_server_public_ip" {
   count = var.server_count
-  name                = "hashistack_public_ip_${count.index}"
+  name                = "hashistack_server_public_ip_${count.index}"
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
   location            = azurerm_resource_group.hashistack_resource_group.location
   allocation_method   = "Static"

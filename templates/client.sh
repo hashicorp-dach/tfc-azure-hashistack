@@ -6,7 +6,7 @@ function private_ip {
 }
 function public_ip {
   curl -s -H Metadata:true 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-12-13&format=text'
-}
+} 
 EOF
 
 source /etc/profile.d/ips.sh
