@@ -25,7 +25,7 @@ resource "azurerm_ssh_public_key" "hashistack_ssh_key" {
   name                = "hashistack-ssh-key"
   resource_group_name = azurerm_resource_group.hashistack_resource_group.name
   location            = var.azure_region
-  public_key          = file("~/Documents/SSH-Keys/Antoine-SSH-Key.pub")
+  public_key          = var.ssh_key
 }
 
 data "azurerm_ssh_public_key" "hashistack_public_key" {

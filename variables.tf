@@ -58,7 +58,9 @@ variable "data_dir" {
   default     = "/opt"
 }
 
-
+variable "ssh_key" {
+  description = "Public key for SSH connections to the VMs"
+}
 //NOMAD SETTINGS
 
 variable "nomad_enabled" {
