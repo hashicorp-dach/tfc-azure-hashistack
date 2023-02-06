@@ -52,7 +52,7 @@ server       = false
 datacenter   = "${datacenter}"
 data_dir     = "${data_dir}/consul/"
 log_level    = "INFO"
-retry_join   = ["provider=aws tag_key=nomad_join tag_value=${nomad_join}"]
+retry_join   = ["provider=azure tag_name=auto_join tag_value=${nomad_join} subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id}"]
 license_path     = "${data_dir}/consul/license.hclic"
 
 service {
@@ -71,7 +71,7 @@ service {
 }
 
 acl = {
-  enabled = true
+  enabled = false
   default_policy = "deny"
   enable_token_persistence = true
 }
@@ -145,7 +145,7 @@ advertise {
 client {
   enabled = ${client}
   server_join {
-    retry_join = ["provider=aws tag_key=nomad_join tag_value=${nomad_join}"]
+    retry_join = ["provider=azure tag_name=auto_join tag_value=${nomad_join} subscription_id=${azure_subscription_id} tenant_id=${azure_tenant_id}"]
   }
   meta {
     "type" = "worker",

@@ -67,7 +67,7 @@ variable "nomad_enabled" {
 
 variable "nomad_version" {
   description = "i.e. 1.2.5 or 1.2.5+ent"
-  default = "1.2.5+ent"
+  default = "1.2.5"
 }
 
 variable "nomad_lic" {
@@ -118,7 +118,7 @@ variable "consul_enabled" {
 
 variable "consul_version" {
   description = "i.e. 1.11.2 or 1.11.2+ent"
-  default = "1.11.2+ent"
+  default = "1.11.2"
 }
 
 variable "consul_lic" {

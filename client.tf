@@ -41,7 +41,7 @@ resource "azurerm_linux_virtual_machine" "hashistack_client_vm" {
 
   admin_ssh_key {
     username   = "hashistack" #upload an sshkey to the azure sub
-    public_key = file("~/Documents/SSH-Keys/Antoine-SSH-Key.pub")
+    public_key = data.azurerm_ssh_public_key.hashistack_public_key.public_key
   }
 
   os_disk {
@@ -73,7 +73,9 @@ resource "azurerm_linux_virtual_machine" "hashistack_client_vm" {
         consul_apt          = local.consul_apt
         consul_lic          = var.consul_lic
         consul_enabled      = var.consul_enabled
-        nomad_enabled       = var.nomad_enabled  
+        nomad_enabled       = var.nomad_enabled
+        azure_tenant_id         = azurerm_user_assigned_identity.vault.tenant_id
+        azure_subscription_id   = data.azurerm_client_config.current.subscription_id  
     } 
   ))
 }
