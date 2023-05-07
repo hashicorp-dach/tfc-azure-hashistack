@@ -8,7 +8,8 @@ terraform {
 }
 
 data "vault_azure_access_credentials" "creds" {
-  role                        = "my-role"
+  role    = "my-role"
+  backend = "azure"                    
 }
 
 provider "azurerm" {
