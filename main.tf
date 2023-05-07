@@ -7,7 +7,13 @@ terraform {
   }
 }
 
+data "vault_azure_access_credentials" "creds" {
+  role                        = "my-role"
+}
+
 provider "azurerm" {
+  client_id     = data.vault_azure_access_credentials.creds.client_id
+  client_secret = data.vault_azure_access_credentials.creds.client_secret
   features {}
 }
 
